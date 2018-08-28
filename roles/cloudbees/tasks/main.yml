@@ -1,0 +1,35 @@
+---
+# tasks file for cloudbees
+
+- name: Login to OC
+  shell: oc login --username={{username}} --password={{password}} {{openshift_url}}
+
+- name: RUN OC Status
+  shell: oc status
+
+- name: Create project
+  shell: oc new-project cloudbees-jenkins-project
+  register: project_creation_status
+  ignore_errors: yes
+
+- name: Check if project creation is successful
+  fail: msg= "{{ project_creation_status.stdout }}"
+  when: "project_creation_status.rc != 0 and 'AlreadyExists' not in project_creation_status.stderr"
+
+- name: Download Open Shift Installer
+  shell: curl https://downloads.cloudbees.com/cje2/latest/cje2_2.121.3.1_openshift.tgz -o cje2_2.121.3.1_openshift.tgz
+
+- name: Extract the zip file
+  unarchive:
+    src: "cje2_2.121.3.1_openshift.tgz" 
+    dest: "."
+    remote_src: yes
+
+- name: Template cloud bees yml file with jenkins url and namespace
+  template: src="cloudbees-core.yml" dest="./cje2_2.121.3.1_openshift/cloudbees-core.yml"
+
+- name: Apply cloud bees yml file 
+  shell: oc apply -f cloudbees-core.yml 
+  args:
+    chdir: "./cje2_2.121.3.1_openshift"
+  

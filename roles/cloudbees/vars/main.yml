@@ -1,0 +1,7 @@
+---
+# vars file for cloudbees
+openshift_url: "https://2886795300-8443-simba02.environments.katacoda.com"
+username: "system"
+password: "admin"
+jenkins_url: "https://2886795300-8443-simba02.environments.katacoda.com/jenkins"
+namespace: "cloudbees-jenkins-project"
